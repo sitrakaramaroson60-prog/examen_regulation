@@ -32,7 +32,14 @@ DEBUG = env_bool("DJANGO_DEBUG", False)
 # Aucune clé par défaut n'est inscrite dans le code : en l'absence de variable,
 # une clé éphémère est générée (sessions/jetons invalidés à chaque redémarrage).
 SECRET_KEY = env("DJANGO_SECRET_KEY") or get_random_secret_key()
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = env_list(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1,examen-regulation.onrender.com",
+)
+
+# Garantir que le domaine Render est autorisé
+if "examen-regulation.onrender.com" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("examen-regulation.onrender.com")
 
 INSTALLED_APPS = [
     "daphne",  # doit précéder staticfiles : `runserver` sert alors aussi les WebSockets (ASGI)
