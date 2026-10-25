@@ -2,6 +2,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+import dj_database_url
 
 from django.core.management.utils import get_random_secret_key
 
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -94,17 +96,26 @@ TEMPLATES = [
 ]
 
 # PostgreSQL est la base de données du projet (paramètres lus dans .env).
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME", "telecom_regulation"),
-        "USER": env("DB_USER", "postgres"),
-        "PASSWORD": env("DB_PASSWORD", ""),
-        "HOST": env("DB_HOST", "localhost"),
-        "PORT": env("DB_PORT", "5432"),
-        "CONN_MAX_AGE": 60,
+# PostgreSQL : base hébergée sur Render ou base locale.
+if env("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME", "telecom_regulation"),
+            "USER": env("DB_USER", "postgres"),
+            "PASSWORD": env("DB_PASSWORD", ""),
+            "HOST": env("DB_HOST", "localhost"),
+            "PORT": env("DB_PORT", "5432"),
+            "CONN_MAX_AGE": 60,
+        }
+    }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
